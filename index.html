@@ -29,6 +29,61 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* 难度级别样式 */
+        .shulte-grid.grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+            max-width: 300px;
+        }
+        
+        .shulte-grid.grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 400px;
+        }
+        
+        .shulte-grid.grid-5 {
+            grid-template-columns: repeat(5, 1fr);
+            max-width: 500px;
+        }
+        
+        .shulte-grid.grid-6 {
+            grid-template-columns: repeat(6, 1fr);
+            max-width: 600px;
+        }
+
+        /* 主题样式 */
+        .theme-default .grid-item {
+            background-color: #ff4d4f;
+        }
+        
+        .theme-default .grid-item:hover {
+            box-shadow: 0 5px 15px rgba(255, 77, 79, 0.4);
+        }
+        
+        .theme-newYear .grid-item {
+            background-color: #d4380d;
+        }
+        
+        .theme-newYear .grid-item:hover {
+            box-shadow: 0 5px 15px rgba(212, 56, 13, 0.4);
+        }
+        
+        .theme-nature .grid-item {
+            background-color: #52c41a;
+        }
+        
+        .theme-nature .grid-item:hover {
+            box-shadow: 0 5px 15px rgba(82, 196, 26, 0.4);
+        }
+        
+        .theme-ocean .grid-item {
+            background-color: #1890ff;
+        }
+        
+        .theme-ocean .grid-item:hover {
+            box-shadow: 0 5px 15px rgba(24, 144, 255, 0.4);
         }
 
         .grid-item {
@@ -159,18 +214,51 @@
         </div>
 
         <div class="flex flex-col gap-4 w-full max-w-xs">
-            <div class="timer-display flex items-center gap-2">
-                <i data-lucide="clock" class="w-6 h-6"></i>
-                <span id="timer">00:00.00</span>
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-bold mb-3 text-center text-red-600">游戏选项</h3>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">难度选择</label>
+                    <select id="difficultySelect" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="3">简单 (3x3)</option>
+                        <option value="4">中等 (4x4)</option>
+                        <option value="5" selected>困难 (5x5)</option>
+                        <option value="6">专家 (6x6)</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">主题选择</label>
+                    <select id="themeSelect" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="default" selected>默认主题</option>
+                        <option value="newYear">新年主题</option>
+                        <option value="nature">自然主题</option>
+                        <option value="ocean">海洋主题</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">最佳成绩</label>
+                    <div class="bg-gray-100 p-2 rounded-md text-sm" id="bestScore">
+                        5x5: 尚未记录
+                    </div>
+                </div>
+                
+                <div class="timer-display flex items-center gap-2 mb-2">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                    <span id="timer">00:00.00</span>
+                </div>
+                
+                <div class="counter-display flex items-center gap-2 mb-4">
+                    <i data-lucide="target" class="w-6 h-6"></i>
+                    <span>当前目标: <span id="currentTarget">1</span></span>
+                </div>
+                
+                <button class="restart-button flex items-center justify-center gap-2 w-full" id="restartButton">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    <span>重新开始</span>
+                </button>
             </div>
-            <div class="counter-display flex items-center gap-2">
-                <i data-lucide="target" class="w-6 h-6"></i>
-                <span>当前目标: <span id="currentTarget">1</span></span>
-            </div>
-            <button class="restart-button flex items-center justify-center gap-2 w-full" id="restartButton">
-                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-                <span>重新开始</span>
-            </button>
         </div>
     </div>
 
@@ -186,12 +274,17 @@
         const timerElement = document.getElementById('timer');
         const currentTargetElement = document.getElementById('currentTarget');
         const restartButton = document.getElementById('restartButton');
+        const difficultySelect = document.getElementById('difficultySelect');
+        const themeSelect = document.getElementById('themeSelect');
+        const bestScoreElement = document.getElementById('bestScore');
 
-        let numbers = Array.from({length: 25}, (_, i) => i + 1);
+        let gridSize = 5;
+        let numbers = Array.from({length: gridSize * gridSize}, (_, i) => i + 1);
         let currentNumber = 1;
         let startTime;
         let timer;
         let isPlaying = false;
+        let bestScores = JSON.parse(localStorage.getItem('shulteBestScores')) || {};
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -203,8 +296,16 @@
 
         function createShulteGrid() {
             shulteGrid.innerHTML = '';
+            
+            // 更新网格大小和数字数组
+            gridSize = parseInt(difficultySelect.value);
+            numbers = Array.from({length: gridSize * gridSize}, (_, i) => i + 1);
             numbers = shuffleArray(numbers);
             
+            // 更新网格类名
+            shulteGrid.className = `shulte-grid grid-${gridSize}`;
+            
+            // 创建网格元素
             numbers.forEach(num => {
                 const gridItem = document.createElement('div');
                 gridItem.classList.add('grid-item');
@@ -213,6 +314,9 @@
                 gridItem.addEventListener('click', () => handleNumberClick(num, gridItem));
                 shulteGrid.appendChild(gridItem);
             });
+            
+            // 更新最佳成绩显示
+            updateBestScoreDisplay();
         }
 
         function createFuGrid() {
@@ -284,11 +388,29 @@
             isPlaying = false;
             clearInterval(timer);
             createConfetti();
-            setTimeout(() => {
-                if (confirm(`恭喜你完成了挑战！\n你的用时：${timerElement.textContent}\n是否再来一局？`)) {
-                    resetGame();
-                }
-            }, 1000);
+            
+            // 记录成绩
+            const finalTime = timerElement.textContent;
+            const scoreKey = `${gridSize}x${gridSize}`;
+            
+            // 检查是否是新的最佳成绩
+            if (!bestScores[scoreKey] || compareTimes(finalTime, bestScores[scoreKey]) < 0) {
+                bestScores[scoreKey] = finalTime;
+                localStorage.setItem('shulteBestScores', JSON.stringify(bestScores));
+                updateBestScoreDisplay();
+                
+                setTimeout(() => {
+                    if (confirm(`🎉 新纪录！恭喜你完成了挑战！\n你的用时：${finalTime}\n这是你在${scoreKey}难度下的最佳成绩！\n是否再来一局？`)) {
+                        resetGame();
+                    }
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    if (confirm(`恭喜你完成了挑战！\n你的用时：${finalTime}\n最佳成绩：${bestScores[scoreKey]}\n是否再来一局？`)) {
+                        resetGame();
+                    }
+                }, 1000);
+            }
         }
 
         function updateTimer() {
@@ -323,11 +445,49 @@
             }
         }
 
+        // 比较两个时间字符串
+        function compareTimes(time1, time2) {
+            const [m1, s1, ms1] = time1.split(/[:.]/).map(Number);
+            const [m2, s2, ms2] = time2.split(/[:.]/).map(Number);
+            
+            const totalMs1 = m1 * 60 * 1000 + s1 * 1000 + ms1 * 10;
+            const totalMs2 = m2 * 60 * 1000 + s2 * 1000 + ms2 * 10;
+            
+            return totalMs1 - totalMs2;
+        }
+
+        // 更新最佳成绩显示
+        function updateBestScoreDisplay() {
+            const scoreKey = `${gridSize}x${gridSize}`;
+            if (bestScores[scoreKey]) {
+                bestScoreElement.textContent = `${scoreKey}: ${bestScores[scoreKey]}`;
+            } else {
+                bestScoreElement.textContent = `${scoreKey}: 尚未记录`;
+            }
+        }
+
+        // 切换主题
+        function changeTheme() {
+            const theme = themeSelect.value;
+            document.body.className = `min-h-screen flex flex-col items-center justify-center p-4 theme-${theme}`;
+        }
+
+        // 事件监听器
         restartButton.addEventListener('click', resetGame);
+        difficultySelect.addEventListener('change', () => {
+            if (!isPlaying) {
+                createShulteGrid();
+            } else {
+                alert('请先完成当前游戏或点击"重新开始"');
+            }
+        });
+        themeSelect.addEventListener('change', changeTheme);
 
         // 初始化游戏
         createShulteGrid();
         createFuGrid();
+        updateBestScoreDisplay();
+        changeTheme();
     </script>
 </body>
 </html>
