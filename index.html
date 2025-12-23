@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新年新挑战 - 舒尔特方格</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=ZCOOL+QingKe+HuangYou&display=swap');
+
+        body {
+            font-family: 'ZCOOL QingKe HuangYou', sans-serif;
+            background-color: #f0f9ff;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .shulte-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ff4d4f;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .grid-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 77, 79, 0.4);
+        }
+
+        .grid-item.active {
+            background-color: #ffec3d;
+            color: #333;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .grid-item.completed {
+            background-color: #52c41a;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .fu-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            pointer-events: none;
+        }
+
+        .fu-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #ffd700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            font-family: 'ZCOOL KuaiLe', sans-serif;
+        }
+
+        .timer-display, .counter-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .restart-button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3);
+        }
+
+        .restart-button:hover {
+            background-color: #40a9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(24, 144, 255, 0.4);
+        }
+        
+
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 3s ease-in-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="text-center mb-8">
+        <h1 class="text-5xl font-bold text-red-600 mb-2" style="font-family: 'ZCOOL KuaiLe', sans-serif;">新年新挑战</h1>
+        <p class="text-xl text-gray-600">测试你的注意力和反应速度！</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-4xl">
+        <div class="game-container">
+            <div class="shulte-grid" id="shulteGrid">
+                <!-- 舒尔特方格将通过JS动态生成 -->
+            </div>
+            <div class="fu-grid" id="fuGrid">
+                <!-- "福"字将通过JS动态生成 -->
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 w-full max-w-xs">
+            <div class="timer-display flex items-center gap-2">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+                <span id="timer">00:00.00</span>
+            </div>
+            <div class="counter-display flex items-center gap-2">
+                <i data-lucide="target" class="w-6 h-6"></i>
+                <span>当前目标: <span id="currentTarget">1</span></span>
+            </div>
+            <button class="restart-button flex items-center justify-center gap-2 w-full" id="restartButton">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                <span>重新开始</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-8 text-center text-gray-500 max-w-md">
+        <p>舒尔特方格是一种注意力训练工具。请按顺序点击数字1到25，挑战你的最快速度！</p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const shulteGrid = document.getElementById('shulteGrid');
+        const fuGrid = document.getElementById('fuGrid');
+        const timerElement = document.getElementById('timer');
+        const currentTargetElement = document.getElementById('currentTarget');
+        const restartButton = document.getElementById('restartButton');
+
+        let numbers = Array.from({length: 25}, (_, i) => i + 1);
+        let currentNumber = 1;
+        let startTime;
+        let timer;
+        let isPlaying = false;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createShulteGrid() {
+            shulteGrid.innerHTML = '';
+            numbers = shuffleArray(numbers);
+            
+            numbers.forEach(num => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.textContent = num;
+                gridItem.dataset.number = num;
+                gridItem.addEventListener('click', () => handleNumberClick(num, gridItem));
+                shulteGrid.appendChild(gridItem);
+            });
+        }
+
+        function createFuGrid() {
+            fuGrid.innerHTML = '';
+            const fuPositions = [
+                {row: 0, col: 0}, {row: 0, col: 2}, {row: 0, col: 3},
+                {row: 1, col: 0}, {row: 1, col: 3},
+                {row: 2, col: 0}, {row: 2, col: 3},
+                {row: 3, col: 0}, {row: 3, col: 1}, {row: 3, col: 2}, {row: 3, col: 3}, {row: 3, col: 4},
+                {row: 4, col: 0}
+            ];
+
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const fuItem = document.createElement('div');
+                    fuItem.classList.add('fu-item');
+                    if (fuPositions.some(pos => pos.row === row && pos.col === col)) {
+                        fuItem.textContent = '福';
+                    }
+                    fuGrid.appendChild(fuItem);
+                }
+            }
+        }
+
+        function handleNumberClick(num, element) {
+            if (!isPlaying) {
+                startGame();
+            }
+
+            if (num === currentNumber) {
+                element.classList.add('completed');
+                currentNumber++;
+                currentTargetElement.textContent = currentNumber > 25 ? '完成！' : currentNumber;
+
+                if (currentNumber > 25) {
+                    endGame();
+                } else {
+                    // 高亮下一个目标数字
+                    const nextTarget = document.querySelector(`.grid-item[data-number="${currentNumber}"]`);
+                    if (nextTarget) {
+                        nextTarget.classList.add('active');
+                        setTimeout(() => nextTarget.classList.remove('active'), 1000);
+                    }
+                }
+            } else {
+                // 点击错误时的反馈
+                element.classList.add('animate-pulse');
+                setTimeout(() => element.classList.remove('animate-pulse'), 300);
+            }
+        }
+
+        function startGame() {
+            isPlaying = true;
+            currentNumber = 1;
+            currentTargetElement.textContent = '1';
+            startTime = Date.now();
+            
+            // 高亮第一个数字
+            const firstNumber = document.querySelector('.grid-item[data-number="1"]');
+            if (firstNumber) {
+                firstNumber.classList.add('active');
+                setTimeout(() => firstNumber.classList.remove('active'), 1000);
+            }
+
+            timer = setInterval(updateTimer, 10);
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(timer);
+            createConfetti();
+            setTimeout(() => {
+                if (confirm(`恭喜你完成了挑战！\n你的用时：${timerElement.textContent}\n是否再来一局？`)) {
+                    resetGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const elapsedTime = Date.now() - startTime;
+            const minutes = Math.floor(elapsedTime / 60000);
+            const seconds = Math.floor((elapsedTime % 60000) / 1000);
+            const milliseconds = Math.floor((elapsedTime % 1000) / 10);
+            
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+        }
+
+        function resetGame() {
+            clearInterval(timer);
+            timerElement.textContent = '00:00.00';
+            currentNumber = 1;
+            currentTargetElement.textContent = '1';
+            isPlaying = false;
+            createShulteGrid();
+        }
+
+        function createConfetti() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 3}s`;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        restartButton.addEventListener('click', resetGame);
+
+        // 初始化游戏
+        createShulteGrid();
+        createFuGrid();
+    </script>
+</body>
+</html>
