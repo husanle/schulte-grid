@@ -30,7 +30,6 @@
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            position: relative;
         }
 
         /* 难度级别样式 */
@@ -100,8 +99,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             user-select: none;
-            position: relative;
-            z-index: 10;
         }
 
         .grid-item:hover {
@@ -124,40 +121,6 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
-        }
-
-        /* 修复福字网格样式 */
-        .fu-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            z-index: 5;
-        }
-        
-        .fu-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-            gap: 10px;
-            box-sizing: border-box;
-        }
-
-        .fu-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: #ffd700;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-            font-family: 'ZCOOL KuaiLe', sans-serif;
-            border-radius: 10px;
-            opacity: 0.8;
         }
 
         .timer-display, .counter-display {
@@ -218,14 +181,6 @@
 
     <div class="flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-4xl">
         <div class="game-container">
-            <!-- 福字容器 -->
-            <div class="fu-container">
-                <div class="fu-grid" id="fuGrid">
-                    <!-- "福"字将通过JS动态生成 -->
-                </div>
-            </div>
-            
-            <!-- 舒尔特方格 -->
             <div class="shulte-grid" id="shulteGrid">
                 <!-- 舒尔特方格将通过JS动态生成 -->
             </div>
@@ -281,14 +236,13 @@
     </div>
 
     <div class="mt-8 text-center text-gray-500 max-w-md">
-        <p>舒尔特方格是一种注意力训练工具。请按顺序点击数字1到25，挑战你的最快速度！</p>
+        <p>舒尔特方格是一种注意力训练工具。请按顺序点击数字，挑战你的最快速度！</p>
     </div>
 
     <script>
         lucide.createIcons();
 
         const shulteGrid = document.getElementById('shulteGrid');
-        const fuGrid = document.getElementById('fuGrid');
         const timerElement = document.getElementById('timer');
         const currentTargetElement = document.getElementById('currentTarget');
         const restartButton = document.getElementById('restartButton');
@@ -335,41 +289,6 @@
             
             // 更新最佳成绩显示
             updateBestScoreDisplay();
-            // 重新创建福字网格
-            createFuGrid();
-        }
-
-        // 修复福字网格创建逻辑
-        function createFuGrid() {
-            fuGrid.innerHTML = '';
-            
-            // 福字位置定义（5x5网格）
-            const fuPositions = [
-                [0, 0], [0, 3], [0, 4],  // 第一行
-                [1, 0], [1, 4],          // 第二行
-                [2, 0], [2, 4],          // 第三行
-                [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], // 第四行
-                [4, 0]                   // 第五行
-            ];
-
-            // 创建5x5的福字网格（固定为5x5，与原图一致）
-            for (let row = 0; row < 5; row++) {
-                for (let col = 0; col < 5; col++) {
-                    const fuItem = document.createElement('div');
-                    fuItem.classList.add('fu-item');
-                    
-                    // 检查当前位置是否需要显示福字
-                    const hasFu = fuPositions.some(pos => pos[0] === row && pos[1] === col);
-                    if (hasFu) {
-                        fuItem.textContent = '福';
-                        // 增强福字样式
-                        fuItem.style.fontSize = '2rem';
-                        fuItem.style.fontWeight = 'bold';
-                    }
-                    
-                    fuGrid.appendChild(fuItem);
-                }
-            }
         }
 
         function handleNumberClick(num, element) {
@@ -518,7 +437,6 @@
 
         // 初始化游戏
         createShulteGrid();
-        createFuGrid(); // 确保福字网格初始化
         updateBestScoreDisplay();
         changeTheme();
     </script>
